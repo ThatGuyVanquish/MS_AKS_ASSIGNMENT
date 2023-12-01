@@ -57,36 +57,6 @@ terraform {
   }
 }
 
-resource "kubectl_manifest" "service_a_dep" {
-  depends_on = [azurerm_kubernetes_cluster.aks_cluster]
-  yaml_body  = file("${path.root}/../YAML/${var.service_a_dep}")
-}
-
-resource "kubectl_manifest" "service_a_svc" {
-  depends_on = [ kubectl_manifest.service_a_dep ]
-  yaml_body = file("${path.root}/../YAML/${var.service_a_svc}")
-}
-
-resource "kubectl_manifest" "service_b_dep" {
-  depends_on = [azurerm_kubernetes_cluster.aks_cluster]
-  yaml_body  = file("${path.root}/../YAML/${var.service_b_dep}")
-}
-
-resource "kubectl_manifest" "service_b_svc" {
-  depends_on = [ kubectl_manifest.service_b_dep ]
-  yaml_body = file("${path.root}/../YAML/${var.service_b_svc}")
-}
-
-resource "kubectl_manifest" "network_policy" {
-  depends_on = [azurerm_kubernetes_cluster.aks_cluster]
-  yaml_body  = file("${path.root}/../YAML/${var.network_policy_yaml}")
-}
-
-resource "kubectl_manifest" "ingress_config" {
-  depends_on = [azurerm_kubernetes_cluster.aks_cluster]
-  yaml_body  = file("${path.root}/../YAML/${var.ingress_config_yaml}")
-}
-
 # Set the context of kubeconfig to be the new cluster
 resource "null_resource" "set_context" {
   depends_on = [azurerm_kubernetes_cluster.aks_cluster]
@@ -96,4 +66,34 @@ resource "null_resource" "set_context" {
     kubectl config use-context ${azurerm_kubernetes_cluster.aks_cluster.name}
     EOT
   }
+}
+
+resource "kubectl_manifest" "service_a_dep" {
+  depends_on = [null_resource.set_context]
+  yaml_body  = file("${path.root}/../YAML/${var.service_a_dep}")
+}
+
+resource "kubectl_manifest" "service_a_svc" {
+  depends_on = [kubectl_manifest.service_a_dep]
+  yaml_body  = file("${path.root}/../YAML/${var.service_a_svc}")
+}
+
+resource "kubectl_manifest" "service_b_dep" {
+  depends_on = [null_resource.set_context]
+  yaml_body  = file("${path.root}/../YAML/${var.service_b_dep}")
+}
+
+resource "kubectl_manifest" "service_b_svc" {
+  depends_on = [kubectl_manifest.service_b_dep]
+  yaml_body  = file("${path.root}/../YAML/${var.service_b_svc}")
+}
+
+resource "kubectl_manifest" "network_policy" {
+  depends_on = [null_resource.set_context]
+  yaml_body  = file("${path.root}/../YAML/${var.network_policy_yaml}")
+}
+
+resource "kubectl_manifest" "ingress_config" {
+  depends_on = [null_resource.set_context]
+  yaml_body  = file("${path.root}/../YAML/${var.ingress_config_yaml}")
 }
