@@ -23,7 +23,7 @@ spec:
             - containerPort: 80
           livenessProbe:
             httpGet:
-              path: /service-a/healthz 
+              path: /service-a/healthz
               port: 80
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -33,16 +33,3 @@ spec:
               port: 80
             initialDelaySeconds: 5
             periodSeconds: 10
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: service-a
-spec:
-  type: ClusterIP
-  selector:
-    app: btc-service-deployment
-  ports:
-    - protocol: TCP
-      port: 8080
-      targetPort: 80

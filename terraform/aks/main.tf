@@ -57,25 +57,24 @@ terraform {
   }
 }
 
-# resource "null_resource" "set_context" {
-#   depends_on = [azurerm_kubernetes_cluster.aks_cluster]
-#   provisioner "local-exec" {
-#     command = <<EOT
-#     az aks get-credentials --resource-group ${var.rg_name} --name ${azurerm_kubernetes_cluster.aks_cluster.name}
-#     kubectl config use-context ${azurerm_kubernetes_cluster.aks_cluster.name}
-#     EOT
-#   }
-# }
-
-resource "kubectl_manifest" "service_a" {
+resource "kubectl_manifest" "service_a_dep" {
   depends_on = [azurerm_kubernetes_cluster.aks_cluster]
-  yaml_body  = file("${path.root}/../YAML/${var.service_a_yaml}")
+  yaml_body  = file("${path.root}/../YAML/${var.service_a_dep}")
 }
 
+resource "kubectl_manifest" "service_a_svc" {
+  depends_on = [ kubectl_manifest.service_a_dep ]
+  yaml_body = file("${path.root}/../YAML/${var.service_a_svc}")
+}
 
-resource "kubectl_manifest" "service_b" {
+resource "kubectl_manifest" "service_b_dep" {
   depends_on = [azurerm_kubernetes_cluster.aks_cluster]
-  yaml_body  = file("${path.root}/../YAML/${var.service_b_yaml}")
+  yaml_body  = file("${path.root}/../YAML/${var.service_b_dep}")
+}
+
+resource "kubectl_manifest" "service_b_svc" {
+  depends_on = [ kubectl_manifest.service_b_dep ]
+  yaml_body = file("${path.root}/../YAML/${var.service_b_svc}")
 }
 
 resource "kubectl_manifest" "network_policy" {
@@ -83,8 +82,18 @@ resource "kubectl_manifest" "network_policy" {
   yaml_body  = file("${path.root}/../YAML/${var.network_policy_yaml}")
 }
 
-
 resource "kubectl_manifest" "ingress_config" {
   depends_on = [azurerm_kubernetes_cluster.aks_cluster]
   yaml_body  = file("${path.root}/../YAML/${var.ingress_config_yaml}")
+}
+
+# Set the context of kubeconfig to be the new cluster
+resource "null_resource" "set_context" {
+  depends_on = [azurerm_kubernetes_cluster.aks_cluster]
+  provisioner "local-exec" {
+    command = <<EOT
+    az aks get-credentials --resource-group ${var.rg_name} --name ${azurerm_kubernetes_cluster.aks_cluster.name}
+    kubectl config use-context ${azurerm_kubernetes_cluster.aks_cluster.name}
+    EOT
+  }
 }

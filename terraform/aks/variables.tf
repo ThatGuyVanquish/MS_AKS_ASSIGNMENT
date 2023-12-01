@@ -23,14 +23,24 @@ variable "node_count" {
   default     = 2
 }
 
-variable "service_a_yaml" {
-  description = "The name of the YAML file for configuring service-a"
+variable "service_a_dep" {
+  description = "The name of the YAML file for configuring the service-a deployment"
   default     = "btc-config.yaml"
 }
 
-variable "service_b_yaml" {
-  description = "The name of the YAML file for configuring service-b"
+variable "service_a_svc" {
+  description = "The name of the YAML file for configuring the service-a svc"
+  default     = "btc-service.yaml"
+}
+
+variable "service_b_dep" {
+  description = "The name of the YAML file for configuring the service-b deployment"
   default     = "busybox-config.yaml"
+}
+
+variable "service_b_svc" {
+  description = "The name of the YAML file for configuring the service-b svc"
+  default     = "busybox-service.yaml"
 }
 
 variable "ingress_config_yaml" {

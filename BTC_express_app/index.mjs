@@ -23,7 +23,8 @@ const fetchBitcoinPrice = async (print = true) => {
         if (print) previousPrices.push(currentBTCPrice);
         if (previousPrices.length === 10) {
             avgPrice = previousPrices.reduce((accumulator, currentValue) => accumulator + currentValue, 0) / 10;
-            console.log(`Average price for the past 10 minutes: ${avgPrice}`);
+            if (print) console.log(`Average price for the past 10 minutes: ${avgPrice}`);
+            previousPrices = [];
         }
 		return true;
     } catch (error) {
