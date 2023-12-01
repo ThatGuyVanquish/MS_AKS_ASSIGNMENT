@@ -1,0 +1,12 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "managedClusters_nh_aks_name": {
+            "value": null
+        },
+        "publicIPAddresses_2b5b8e64_623e_401c_a3aa_a800129ccf7c_externalid": {
+            "value": null
+        }
+    }
+}

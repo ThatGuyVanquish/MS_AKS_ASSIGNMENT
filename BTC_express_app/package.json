@@ -1,0 +1,15 @@
+{
+  "name": "btc-express-app",
+  "version": "1.0.0",
+  "description": "ExpressJS app to retrieve the value of bitcoin from CoinGecko every minute, then every 10 display the average value in the last 10 minutes. Includes endpoints for liveness and readiness probes(k8s)",
+  "main": "index.mjs",
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "author": "Nave Hersco",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2"
+  }
+}

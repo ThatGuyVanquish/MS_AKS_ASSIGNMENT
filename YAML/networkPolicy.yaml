@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: service-a-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: btc-service-deployment
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - key: app
+                operator: NotIn
+                values:
+                  - busybox-deployment
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: service-b-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: busybox-deployment
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - key: app
+                operator: NotIn
+                values:
+                  - btc-service-deployment
