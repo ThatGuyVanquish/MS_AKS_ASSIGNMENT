@@ -3,9 +3,6 @@
 # FILL VARIABLES BELOW
 subscriptionID="ENTER_YOUR_SUBSCRIPTION_ID"
 
-# Login to Azure
-az login
-
 # Set the subscription
 az account set --subscription "$subscriptionID"
 

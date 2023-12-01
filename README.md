@@ -1,5 +1,5 @@
 ## Execution Instructions: 
-Note that both scripts call 'az login' pretty early on and it is expected that the user clicks the link if a webpage doesn't open and completes the necessary actions.
+NOTE: Please call ```az login``` before executing either way.
 #### 1) CLI: 
 Edit the cli-setup.sh file, and enter your subcription-id to [line 4](https://github.com/ThatGuyVanquish/MS_AKS_ASSIGNMENT/blob/d267b7fd4303a3b9c01039b54c9f16a672879304/cli-setup.sh#L4C4-L4C4). Then execute the script and wait for it to finish.
 
@@ -10,6 +10,12 @@ CD Into the [terraform](https://github.com/ThatGuyVanquish/MS_AKS_ASSIGNMENT/tre
 
 Run the commands ```terraform init```, then ```terraform plan```, and finally ```terraform apply -auto-approve``` to start the cluster build process.
 
+If any issues arise regarding the deployment of the kubectl manifests, check if the new cluster is the current context with ```kubectl get all```. 
+If that fails with connection issue, call 
+``` az aks get-credentials --resource-group nh-aks-rg --name nh-aks ```
+then:
+```kubectl config use-context nh-aks```
+Finally, call ```kubectl get all``` again to make sure that the new cluster is the current context and re-run ```terraform plan``` and ```terraform apply -auto-approve```.
 ## Explanation and rationale:
 I decided to include two ways to run the project because I wanted to explore Azure CLI commands and learn how they could help me play around with a cluster configuration in a pinch.
 I believe that working with them before I started working on the Terraform configuration helped me understand what the result should be and also helped me troubleshoot issues I had along the way.

@@ -57,19 +57,16 @@ terraform {
   }
 }
 
-# Set the context of kubeconfig to be the new cluster
-resource "null_resource" "set_context" {
-  depends_on = [azurerm_kubernetes_cluster.aks_cluster]
-  provisioner "local-exec" {
-    command = <<EOT
-    az aks get-credentials --resource-group ${var.rg_name} --name ${azurerm_kubernetes_cluster.aks_cluster.name}
-    kubectl config use-context ${azurerm_kubernetes_cluster.aks_cluster.name}
-    EOT
-  }
+provider "kubectl" {
+  # config_context         = azurerm_kubernetes_cluster.aks_cluster.name
+  host                   = azurerm_kubernetes_cluster.aks_cluster.kube_config.0.host
+  client_key             = base64decode(azurerm_kubernetes_cluster.aks_cluster.kube_config.0.client_key)
+  client_certificate     = base64decode(azurerm_kubernetes_cluster.aks_cluster.kube_config.0.client_certificate)
+  cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.aks_cluster.kube_config.0.cluster_ca_certificate)
 }
 
 resource "kubectl_manifest" "service_a_dep" {
-  depends_on = [null_resource.set_context]
+  depends_on = [azurerm_kubernetes_cluster.aks_cluster]
   yaml_body  = file("${path.root}/../YAML/${var.service_a_dep}")
 }
 
@@ -79,7 +76,7 @@ resource "kubectl_manifest" "service_a_svc" {
 }
 
 resource "kubectl_manifest" "service_b_dep" {
-  depends_on = [null_resource.set_context]
+  depends_on = [azurerm_kubernetes_cluster.aks_cluster]
   yaml_body  = file("${path.root}/../YAML/${var.service_b_dep}")
 }
 
@@ -89,11 +86,23 @@ resource "kubectl_manifest" "service_b_svc" {
 }
 
 resource "kubectl_manifest" "network_policy" {
-  depends_on = [null_resource.set_context]
+  depends_on = [azurerm_kubernetes_cluster.aks_cluster]
   yaml_body  = file("${path.root}/../YAML/${var.network_policy_yaml}")
 }
 
 resource "kubectl_manifest" "ingress_config" {
-  depends_on = [null_resource.set_context]
+  depends_on = [azurerm_kubernetes_cluster.aks_cluster]
   yaml_body  = file("${path.root}/../YAML/${var.ingress_config_yaml}")
+}
+
+# Set the new cluster as the k8s context
+resource "null_resource" "k8s_context" {
+  depends_on = [kubectl_manifest.service_a_svc]
+  # Depending on service_a_svc as service_a should in theory take the longest to deploy, since it's service is deployed straight after it should be the last thing to be completed
+  provisioner "local-exec" {
+    command = <<EOT
+      az aks get-credentials --resource-group ${var.rg_name} --name ${azurerm_kubernetes_cluster.aks_cluster.name}
+      kubectl config use-context ${azurerm_kubernetes_cluster.aks_cluster.name}
+    EOT
+  }
 }
